@@ -1,0 +1,45 @@
+.carousel {
+  position: absolute;
+  object-fit: cover;
+  width: 100%;
+  height: 80vh;
+  display: none;
+}
+
+.gdctitle {
+  font-size: 100px;
+}
+
+@media (max-width: 600px) {
+  .gdctitle {font-size: 16vw;}
+}
+
+.slide-in {
+  animation: slide-in 1s ease-in-out forwards;
+  -webkit-animation: slide-in 1s ease-in-out forwards;
+}
+
+.slide-out {
+  animation: slide-out 1s ease-in-out forwards;
+  -webkit-animation: slide-out 1s ease-in-out forwards;
+}
+
+@keyframes slide-in {
+  0%   {left:-100%; display: block}
+  100% {left:0%}
+}
+
+@-webkit-keyframes slide-in {
+  0%   {left:-100%; display: block}
+  100% {left:0%}
+}
+
+@keyframes slide-out {
+  0%   {left:0%}
+  100% {left:100%; display: none}
+}
+
+@-webkit-keyframes slide-out {
+  0%   {left:0%}
+  100% {left:100%; display: none}
+}

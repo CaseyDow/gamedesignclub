@@ -1,0 +1,30 @@
+document.currentScript.insertAdjacentHTML('beforebegin', `
+<div style="display: table; clear: both"></div>
+<nav id="nav" style="width: 100%; position: fixed; z-index: 2; background-color: #000; color: #fff; top: 0">
+  <a href="/" class="button">Home</a>
+  <div class="button dropdown">
+    <a href="/people/" style="text-decoration:none">People</a>
+    <div class="dropdown-content">
+      <a href="/people/casey/">Casey</a>
+      <a href="/people/calvin/">Calvin</a>
+    </div>
+  </div>
+  <div class="button dropdown">
+    <a href="/games/" style="text-decoration:none">Games</a>
+    <div class="dropdown-content">
+      <a href="/games/nvwk/">NVWK</a>
+      <a href="/games/tapp/">TAPP</a>
+      <a href="/games/desert-pioneers/">Desert Pioneers</a>
+      <a href="/games/supervillains/">Supervillains</a>
+    </div>
+  </div>
+  <a href="/contact/" class="button">Contact</a>
+  <label class="switch" id="test">
+    <input name="slide" type="checkbox" onclick="check()" aria-label="test">
+    <span class="slider"></span>
+  </label>
+</nav>
+<div style="display: table; clear: both"></div>
+<div id="push" style="position: relative; height: 0px"></div>
+`);
+document.getElementById("push").style.height = document.getElementById("nav").offsetHeight + "px";

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><title>Game Design Club</title></head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/universal/base.css">
+<link rel="stylesheet" href="./main/main.css">
+
+<body>
+
+<!-- Navigation -->
+<script src="/universal/nav.html"></script>
+
+<!-- Slide Show -->
+<section style="position: relative; height: 80vh; width: 100%; overflow: hidden">
+  <img class="carousel daySlides" src="./main/images/carousel/day/fuji.webp" alt="Mt. Fuji" width="1000" height="750">
+  <img class="carousel daySlides" src="./main/images/carousel/day/oregon.webp" alt="Oregon" width="1000" height="750">
+  <img class="carousel daySlides" src="./main/images/carousel/day/oregon2.webp" alt="Oregon2" width="1000" height="750">
+  <img class="carousel daySlides" src="./main/images/carousel/day/yosemite.webp" alt="Yosemite" width="1000" height="750">
+  <img class="carousel daySlides" src="./main/images/carousel/day/yosemite2.webp" alt="Yosemite2" width="1000" height="750">
+  <img class="carousel nightSlides" src="./main/images/carousel/night/moraga.webp" alt="Moraga" width="1000" height="750">
+  <img class="carousel nightSlides" src="./main/images/carousel/night/moraga2.webp" alt="Moraga2" width="1000" height="750">
+  <img class="carousel nightSlides" src="./main/images/carousel/night/moraga3.webp" alt="Moraga3" width="1000" height="750">
+  <img class="carousel nightSlides" src="./main/images/carousel/night/moraga4.webp" alt="Moraga4" width="1000" height="750">
+  <img class="carousel nightSlides" src="./main/images/carousel/night/morro_bay.webp" alt="Morro Bay" width="1000" height="750">
+
+  <div style="position: absolute; align-items: center; display: flex; inset: 0;">
+    <h1 class="gdctitle" style="vertical-align: middle; margin: auto; color:#fff">Game Design Club</h1>
+  </div>
+</section>
+
+<!-- Club Description -->
+<section style="max-width: 600px; padding: 10px; margin: auto; text-align:center">
+  <h1>Game Design Club</h1>
+  <p>The Game Design Club is a place where students work together to design board, card, and online games. It has already created a few games in previous years and all students are welcome to come!</p>
+  <p>We meet every Friday at lunch in Room D6</p>
+  <p>Sign Up: <a href=https://discord.gg/tENqAQwv7B target="_blank" rel="noopener">discord.gg/tENqAQwv7B</a></p>
+</section>
+
+<!-- Presidents -->
+<section style="background-color: #eee; text-align: center; padding: 0 40px 40px 40px">
+  <h1>Meet the Presidents</h1>
+  <article class="half">
+    <h3>Casey Dow</h3>
+    <img width="1000" height="750" src="./main/images/people/casey.webp" alt="Casey" style="width:100%; height: auto">
+    <p>Casey is the main coder of the projects.</p>
+  </article>
+  <article class="half">
+    <h3>Calvin Chen</h3>
+    <img width="400" height="416" src="./main/images/people/calvin.webp" alt="Calvin" style="width:72%; height: auto">
+    <p>Calvin leads the development of new games.</p>
+  </article>
+</section>
+
+<!-- Footer -->
+<script src="/universal/footer.html"></script>
+
+<script>
+// Carousel automatic change
+let carouselNum = 1;
+let carouselNames = "daySlides";
+document.getElementsByClassName("daySlides")[0].style.display = "block";
+let timeout = setTimeout(carousel, 5000);
+
+function carousel() {
+  let x = document.getElementsByClassName(carouselNames);
+
+  for (let i = 0; i < x.length; i++) {
+    if (carouselNum == i) {
+      x[i].style.display = "block";
+      x[i].setAttribute("class", "carousel " + carouselNames + " slide-in");
+    } else {
+      x[i].setAttribute("class", "carousel " + carouselNames + " slide-out");
+    }
+  }
+
+  carouselNum++;
+  if (carouselNum == x.length) {carouselNum = 0;}
+  timeout = setTimeout(carousel, 5000);
+}
+
+// Move carousel images on scroll
+window.addEventListener("scroll", () => {
+  let images = document.getElementsByClassName("carousel");
+  for (let i = 0; i < images.length; i++) {
+    images[i].style.objectPosition = "0 " + (-window.pageYOffset / window.innerHeight * 100 + 50) + "%";
+  }
+});
+
+// Light/Dark Mode switch
+function check() {
+  if (carouselNames == "daySlides") {
+    carouselNames = "nightSlides";
+  } else {
+    carouselNames = "daySlides";
+  }
+  let x = document.getElementsByClassName("carousel");
+  for (let i = 0; i < x.length; i++) {
+     x[i].style.display = "none";
+  }
+  carouselNum = 1;
+  let elems = document.getElementsByClassName(carouselNames);
+  elems[0].style.display = "block";
+  elems[elems.length - 1].style.display = "block";
+  elems[elems.length - 1].setAttribute("class", "carousel " + carouselNames + " slide-out");
+  elems[0].setAttribute("class", "carousel " + carouselNames + " slide-in");
+  clearTimeout(timeout);
+  timeout = setTimeout(carousel, 5000);
+}
+</script>
+
+</body>
+
+</html>
