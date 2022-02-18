@@ -26,45 +26,45 @@ let AMT = {"C":3, "R":2, "E":2, "M":1}
 let CLR = {"Common":"~c84", "Rare":"~684", "Epic":"~489", "Mythic":"~659"}
 
 let gameId;
-let hand;
+let hand = -1;
 let players = [];
 let deck = [];
 
 let message = function(event) {
-  if (event.data.startsWith("Code")) {
-    gameId = event.data.slice(4);
-  } else if (event.data.startsWith("SV")) {
-    let events = event.data.slice(3).split("//");
-    setUpGame(events.shift());
-
+  if (event.message.startsWith("SV")) {
+    setUpGame(event.message.slice(3));
     log("Game Successfully Set Up");
     log("> Game ID: " + gameId);
     log("> Players: " + players.length);
     log("Enter a username: <h>;;username;;</h>");
-
-    for (let i = 0; i < events.length; i++) {
-      setTimeout(function() {
-        message(new MessageEvent("message", { data: events.shift() }));
-      }, 20 * i);
-    }
-  } else if (event.data.startsWith("Join")) {
-    let data = event.data.slice(4).split(";");
+  } else if (event.message.startsWith("Join")) {
+    let data = event.message.slice(4).split(";");
     let h = parseInt(data[0]);
     players[h].online = true;
-    players[h].draw(4, false);
     players[h].name = data[1];
-    if (hand == h) {
-      log(data[1], "<h>;;username;;</h>");
-      updateHand();
+    if (!players[h].joined) {
+      players[h].joined = true;
+      players[h].draw(4, false);
+      if (hand == h) {
+        log(data[1], "<h>;;username;;</h>");
+        updateHand();
+        updateStacks();
+      }
     }
-    log(data[1] + " joined the game. (" + countPlayers() + "/" + players.length + ")");
-    log(players[h].desc(), "", "players");
-  } else if (event.data.startsWith("Draw")) {
-    let data = event.data.slice(4).split(";");
-    players[parseInt(event.data.slice(4))].draw(parseInt(data[1]));
+    log(data[1] + " joined the game. (Player " + (h + 1) + ", " + countPlayers() + "/" + players.length + ")");
+    let strPlayers = "";
+    for (let i = 0; i < players.length; i++) {
+      if (players[i].online) {
+        strPlayers += players[i].desc() + "<br>";
+      }
+    }
+    log(strPlayers.slice(0, -4), "all", "players");
+  } else if (event.message.startsWith("Draw")) {
+    let data = event.message.slice(4).split(";");
+    players[parseInt(event.message.slice(4))].draw(parseInt(data[1]));
     updateHand();
-  } else if (event.data.startsWith("Play")) {
-    let data = event.data.slice(4).split(";");
+  } else if (event.message.startsWith("Play")) {
+    let data = event.message.slice(4).split(";");
     let h = parseInt(data[0]);
     let newCard = players[h].hand.splice(players[h].index(data[1]), 1)[0];
     players[h].stacks[parseInt(data[2]) - 1].push(newCard);
@@ -76,14 +76,18 @@ let message = function(event) {
     }
     updateHand();
     updateStacks();
-  } else if (event.data.startsWith("Chat")) {
-    let data = event.data.slice(4).split(";");
-    log("[" + players[data[0]].name + "]: " + data[1]);
-  } else if (event.data.startsWith("Sprg")) {
-    let data = event.data.slice(4).split(";");
+  } else if (event.message.startsWith("Chat")) {
+    let data = event.message.slice(4).split(";");
+    if (data.length > 1) {
+      log("[" + players[parseInt(data[0])].name + "]: " + data[1]);
+    } else {
+      log("~aaa[Spectator]: " + data[0]);
+    }
+  } else if (event.message.startsWith("Sprg")) {
+    let data = event.message.slice(4).split(";");
     players[parseInt(data[0])].stacks[parseInt(data[1])].splice(parseInt(data[2]), 1)[0].spring(parseInt(data[0]));
-  } else if (event.data.startsWith("Stel")) {
-    let data = event.data.slice(4).split(";");
+  } else if (event.message.startsWith("Stel")) {
+    let data = event.message.slice(4).split(";");
     let took = parseInt(data[0]);
     let gone = parseInt(data[1]);
     let newCard = players[gone].hand.splice(parseInt(data[2]), 1)[0];
@@ -98,8 +102,8 @@ let message = function(event) {
     } else {
       log(players[took].name + " stole a card from " + players[gone].name + "!");
     }
-  } else if (event.data.startsWith("Dscd")) {
-    let data = event.data.slice(4).split(";");
+  } else if (event.message.startsWith("Dscd")) {
+    let data = event.message.slice(4).split(";");
     let took = parseInt(data[0]);
     let gone = parseInt(data[1]);
     let newCard = players[gone].hand.splice(parseInt(data[2]), 1)[0];
@@ -114,8 +118,8 @@ let message = function(event) {
     } else {
       log(players[took].name + " discarded " + DECK[newCard.card[0]][0] + " from " + players[gone].name + "'s hand!");
     }
-  } else if (event.data.startsWith("Cler")) {
-    let data = event.data.slice(4).split(";");
+  } else if (event.message.startsWith("Cler")) {
+    let data = event.message.slice(4).split(";");
     let str = "";
     if (parseInt(data[0]) == hand) {
       str += "<details><summary>You cleared Stack " + (parseInt(data[1]) + 1) + "!</summary>";
@@ -131,10 +135,21 @@ let message = function(event) {
     if (parseInt(data[0]) == hand) {
       updateStacks();
     }
+  } else if (event.message.startsWith("Leve")) {
+    let h = parseInt(event.message.slice(4));
+    let player = players[h];
+    player.online = false;
+    log(player.name + " left the game. (Player " + (h + 1) + ", " + countPlayers() + "/" + players.length + ")");
+    let strPlayers = "";
+    for (let i = 0; i < players.length; i++) {
+      if (players[i].online) {
+        strPlayers += players[i].desc() + "<br>";
+      }
+    }
+    log(strPlayers.slice(0, -4), "all", "players");
   } else {
-    log(event.data);
+    log(event.message);
   }
-
 };
 
 function search(e) {
@@ -145,18 +160,37 @@ function search(e) {
 
     if (gameId == null) {
       if (cmd.startsWith("start ") && cmd.length > 6 && !isNaN(cmd.slice(6))) {
-        ws.send("GaSV:" + makeDeck() + ";" + cmd.slice(6));
+        send(makeDeck() + ";" + cmd.slice(6));
       } else if (cmd.startsWith("join ") && cmd.length > 5 && !isNaN(cmd.slice(5))) {
-        ws.send(val.slice(5) + "0");
         gameId = cmd.slice(5);
+        pubnub.subscribe({
+          channels: ['SV' + gameId],
+          withPresence: true
+        });
       } else {
         log("Please use 'Start [#]' or 'Join [###]' to begin.");
       }
-    } else if (!players[hand].online) {
+    } else if (hand < 0) {
       if (cmd.includes(";")) {
         log("You can not use ';' in your name!");
       } else {
-        ws.send(gameId + "Join" + hand + ";" + val);
+        for (let i = 0; i < players.length; i++) {
+          if (!players[i].online) {
+            hand = i;
+            break;
+          }
+        }
+        if (hand < 0) {
+          if (val == "") {
+            log("~f00Please input a message to send!");
+          } else if (val.includes(";")) {
+            log("~f00You can not use ';' in chat messages!");
+          } else {
+            send("Chat" + val);
+          }
+        } else {
+          send("Join" + hand + ";" + val);
+        }
       }
     } else {
       switch (cmd.split(" ")[0]) {
@@ -183,7 +217,7 @@ function cmdPlay(cmd) {
     if (isNaN(stack) || stack < 1 || stack > 3) {
       log("~f00You selected an invalid stack number!");
     } else if (players[hand].hasCard(id)) {
-      ws.send(gameId + "Play" + hand + ";" + id + ";" + stack);
+      send("Play" + hand + ";" + id + ";" + stack);
     } else {
       log("~f00You do not have that card in your hand!");
     }
@@ -198,7 +232,7 @@ function cmdDraw(cmd) {
       num = temp;
     }
   }
-  ws.send(gameId + "Draw" + hand + ";" + num);
+  send("Draw" + hand + ";" + num);
 }
 
 function cmdInfo(cmd) {
@@ -235,7 +269,7 @@ function cmdSpring(cmd) {
       for (let j = 0; j < stack.length; j++) {
         let card = stack[j];
         if (card.id == id) {
-          ws.send(gameId + "Sprg" + hand + ";" + i + ";" + j);
+          send("Sprg" + hand + ";" + i + ";" + j);
           return;
         }
       }
@@ -256,7 +290,7 @@ function cmdSteal(cmd) {
       log("~f00Invalid player!");
     } else if (players[gone].hand.length > 0) {
       let rand = Math.floor(Math.random() * players[gone].hand.length);
-      ws.send(gameId + "Stel" + hand + ";" + gone + ";" + rand);
+      send("Stel" + hand + ";" + gone + ";" + rand);
     } else {
       log("~f00That player does not have any cards in their hand!");
     }
@@ -272,7 +306,7 @@ function cmdClear(cmd) {
     if (stack < 0 || stack >= players[hand].stacks.length) {
       log("~f00Invalid stack number!");
     } else {
-      ws.send(gameId + "Cler" + hand + ";" + stack)
+      send("Cler" + hand + ";" + stack)
     }
   }
 }
@@ -287,7 +321,7 @@ function cmdDiscard(cmd) {
       log("~f00Invalid player!");
     } else if (players[gone].hand.length > 0) {
       let rand = Math.floor(Math.random() * players[gone].hand.length);
-      ws.send(gameId + "Dscd" + hand + ";" + gone + ";" + rand);
+      send("Dscd" + hand + ";" + gone + ";" + rand);
     } else {
       log("~f00That player does not have any cards in their hand!");
     }
@@ -295,10 +329,12 @@ function cmdDiscard(cmd) {
 }
 
 function chat(e) {
-  if (!e.includes(";")) {
-    ws.send(gameId + "Chat" + hand + ";" + e);
-  } else {
+  if (e == "") {
+    log("~f00Please input a message to send!");
+  } else if (e.includes(";")) {
     log("~f00You can not use ';' in chat messages!");
+  } else {
+    send("Chat" + hand + ";" + e);
   }
 }
 
@@ -342,7 +378,7 @@ function makeDeck() {
     }
   }
   deck = shuffle(deck);
-  let strDeck = "GaSV:";
+  let strDeck = "SV:";
   for (let i = 0; i < deck.length; i++) {
     strDeck += deck[i][0] + "," + deck[i][1] + ";";
   }
@@ -417,18 +453,18 @@ class Card {
 
 function a(id, stack="") {
   if (id == "stack") {
-    ws.send(gameId + "Cler" + hand + ";" + stack);
+    send("Cler" + hand + ";" + stack);
     return;
   }
   if (players[hand].index(id) > -1 && stack != "") {
-    ws.send(gameId + "Play" + hand + ";" + id + ";" + stack)
+    send("Play" + hand + ";" + id + ";" + stack)
     return;
   }
   for (let i = 0; i < players[hand].stacks.length; i++) {
     let stack = players[hand].stacks[i];
     for (let j = 0; j < stack.length; j++) {
       if (stack[j].id == id) {
-        ws.send(gameId + "Sprg" + hand + ";" + i + ";" + j);
+        send("Sprg" + hand + ";" + i + ";" + j);
         return;
       }
     }
@@ -440,6 +476,7 @@ class Player {
   constructor(id, name) {
     this.name = name;
     this.online = false;
+    this.joined = false;
     this.hand = [];
     this.stacks = [[], [], []];
     this.id = id;
@@ -495,16 +532,12 @@ function setUpGame(data) {
   for (let i = 1; i <= parseInt(data[1]); i++) {
     players.push(new Player(i - 1, "Player " + i));
   }
-  hand = parseInt(data[0].slice(0, 2)) - 1;
-
-  let lisDeck = data[0].slice(2).split(";").map(function(x) {
+  let lisDeck = data[0].split(";").map(function(x) {
     return x.split(",");
   });
   for (let i = 0; i < lisDeck.length; i++) {
     deck.push(new Card(lisDeck[i][0], lisDeck[i][1]));
   }
-
-  updateStacks();
 
 }
 
@@ -518,12 +551,83 @@ function countPlayers() {
   return a;
 }
 
-let ws = new WebSocket("ws://" + window.location.host);
-ws.onclose = function() {
-  log("Error: Could not connect to server.");
-};
-ws.onmessage = message;
+const pubnub = new PubNub({
+  publishKey: 'pub-c-6d5bcb69-9b5e-4028-8d71-16d663175bc2',
+  subscribeKey: 'sub-c-0253bc9a-906b-11ec-918e-02d5075437d9',
+  uuid: "uuid"
+});
+
+pubnub.addListener({
+  message: function(event) {
+    message(event);
+  },
+  status: function(event) {
+    checkHistory(event);
+  }
+});
+
+async function checkHistory(event) {
+  let history;
+  try {
+    history = await pubnub.history({
+      channel: event.affectedChannels[0],
+      count: 100,
+      stringifiedTimeToken: true,
+    });
+  } catch (status) {
+    console.log(status);
+  }
+  for (let i = 0; i < history.messages.length; i++) {
+    setTimeout(function() {
+      message(new Object({ message: history.messages[i].entry }));
+    }, 20 * i);
+  }
+
+}
+
+async function findUnusedChannel(i, digits) {
+  let id = Math.floor(Math.random() * 9 * 10**digits) + 10**(digits - 1) + "";
+  let history;
+  try {
+    history = await pubnub.history({
+      channel: "SV" + id,
+      count: 1,
+    });
+  } catch (status) {
+    console.log(status);
+  }
+  if (history.messages.length > 0) {
+    if (i > 10) {
+      digits += 1;
+      i = -1;
+    }
+    return findUnusedChannel(i + 1, digits);
+  } else {
+    gameId = id;
+    return id;
+  }
+}
+
+async function send(message) {
+  if (gameId == null) {
+    pubnub.subscribe({
+      channels: ["SV" + await findUnusedChannel(0, 2)],
+      withPresence: true
+    });
+  }
+
+  pubnub.publish({
+    channel: "SV" + gameId,
+    message: message
+  }, function(status, response) {
+    if (status.error) {
+      console.log(status)
+    }
+  });
+}
 
 window.onbeforeunload = function() {
-  ws.close();
+  if (gameId != null && hand > -1) {
+    send("Leve" + hand);
+  }
 };
