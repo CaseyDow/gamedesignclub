@@ -307,14 +307,14 @@ let message = function(event) {
     }
     log("The deck was reshuffled!");
     if (players[hand].class != "Knight") {
-      Player.tokens.push(event.message.split(";;")[1].split(";")[hand].split(",")[0]);
+      Player.tokens = event.message.split(";;")[1].split(";")[hand].split(",");
       GameGUI.screen = 1;
     } else {
       GameGUI.screen = 2;
     }
     for (let i = 0; i < players.length; i++) {
       if (players[i].class == "Knight") {
-        token(players[i], parseInt(event.message.split(";;")[1].split(";")[i].split(",")));
+        token(players[i], event.message.split(";;")[1].split(";")[i].split(",")[0]);
       }
     }
     window.requestAnimationFrame(GameGUI.draw);
@@ -917,12 +917,10 @@ class GameGUI {
           }
           send(message);
         } else {
-          if (Player.recycle[0] > -1) {
-            if (Player.recycle[1] >= 3) {
-              log("#000000You may only discard up to three with a Recycle Token!");
-            } else if (Player.recycle[2] > 0) {
-              log("#000000You may not discard after drawing while using a Recycle Token!");
-            }
+          if (Player.recycle[0] > -1 && Player.recycle[1] >= 3) {
+            log("#000000You may only discard up to three with a Recycle Token!");
+          } else if (Player.recycle[0] > -1 && Player.recycle[2] > 0) {
+            log("#000000You may not discard after drawing while using a Recycle Token!");
           } else {
             send("Play" + hand + ";" + Player.clickCard.card[0] + Player.clickCard.card[1] + ";D;");
           }
@@ -1368,7 +1366,7 @@ function getVars(card, player, aim) {
   let cardID = card.card[0] + card.card[1];
   if (cardID == "MR2") {
     for (let i = 0; i < Deck.played[0].length; i++) {
-      let cardID = Deck.played[0][i].card[0] + Deck.played[0][i].card[1]
+      cardID = Deck.played[0][i].card[0] + Deck.played[0][i].card[1];
       if (cardID != "MR2" && !Deck.played[0][i].skip) {
         break;
       }
@@ -2090,9 +2088,7 @@ document.onreadystatechange = function() {
   if (document.readyState == "complete") {
     let check = setInterval(function() {
       if (document.fonts.check("1em Big Shoulders Display")) {
-        setTimeout(function() {
-          window.requestAnimationFrame(MainGUI.draw);
-        }, 20);
+        window.dispatchEvent(new Event('resize'));
         clearInterval(check);
       }
     }, 20);
