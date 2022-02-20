@@ -586,7 +586,7 @@ async function checkHistory(event) {
 }
 
 async function findUnusedChannel(i, digits) {
-  let id = Math.floor(Math.random() * 9 * 10**digits) + 10**(digits - 1) + "";
+  let id = Math.floor(Math.random() * 9 * 10**digits) + 10**digits + "";
   let history;
   try {
     history = await pubnub.history({
