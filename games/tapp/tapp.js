@@ -95,8 +95,10 @@ canvas.style.zoom = 0.25;
 
 let message = function(event) {
   if (event.message.startsWith("TP")) {
-    setUpGame(event.message.slice(2));
-    checkHistory("TP-JL" + gameId, 100, 1);
+    if (Deck.deck.length == 0) {
+      setUpGame(event.message.slice(2));
+      checkHistory("TP-JL" + gameId, 100, 1);
+    }
   } else if (event.message.startsWith("Join")) {
     let data = event.message.slice(4).split(";");
     let h = parseInt(data[0]);
@@ -364,7 +366,7 @@ let message = function(event) {
   } else if (event.message.startsWith("Leve")) {
     let h = event.message.slice(4);
     for (let i = 0; i < players.length; i++) {
-      if (players[i].uuid = h) {
+      if (players[i].uuid == h) {
         let player = players[i];
         player.online = false;
         player.uuid = null;
@@ -426,10 +428,10 @@ class MainGUI {
       MainGUI.tempGameId = MainGUI.tempGameId.slice(0, -1);
     } else if (!isNaN(event.key)) {
       MainGUI.tempGameId += event.key;
-      if (MainGUI.tempGameId.length >= 4) {
+      if (MainGUI.tempGameId.length > 4) {
         MainGUI.tempGameId = MainGUI.tempGameId.slice(1);
       }
-    } else if (event.key == "Enter" && MainGUI.tempGameId.length == 3) {
+    } else if (event.key == "Enter" && MainGUI.tempGameId.length > 2) {
       MainGUI.toggleListeners(false);
       document.getElementById("mainInput").remove();
       pubnub.subscribe({
@@ -446,7 +448,7 @@ class MainGUI {
     rect(width / 2, height / 2, width, height, "#64c8dc");
     rect(width / 2, height / 1.8, width / 4, height / 9);
     rect(width / 2, height / 1.5, width / 5, height / 11);
-    text("Multiplayer", width / 2, height / 6, fontSize / 6);
+    text("TAPP", width / 2, height / 6, fontSize / 6);
     text("Game ID:", width / 2, height / 2.3, fontSize / 17);
     text(MainGUI.tempGameId, width / 2, height / 1.8, fontSize / 17);
     text("Create Game", width / 2, height / 1.5, fontSize / 20);
@@ -483,7 +485,7 @@ class CreateGUI {
   }
 
   static click(event) {
-    if (between(event.offsetX, width * 0.3, width * 0.15)) {
+    if (between(event.offsetX, width * 0.3, width * 0.2)) {
       if (between(event.offsetY, height * 0.45, height * 0.1)) {
         CreateGUI.incantations = !CreateGUI.incantations;
         window.requestAnimationFrame(CreateGUI.draw);
@@ -517,9 +519,9 @@ class CreateGUI {
     text("Start", width * 0.3, height * 0.7875, fontSize / 14);
     text("Players: " + CreateGUI.players, width * 0.3, height * 0.35, fontSize / 14);
     if (CreateGUI.incantations) {
-      text("Jokers: On", width * 0.3, height * 0.45, fontSize / 14);
+      text("Incantations: On", width * 0.3, height * 0.45, fontSize / 14);
     } else {
-      text("Jokers: Off", width * 0.3, height * 0.45, fontSize / 14);
+      text("Incantations: Off", width * 0.3, height * 0.45, fontSize / 14);
     }
   }
 
@@ -759,7 +761,7 @@ class GameGUI {
               }
             }
             if (clickCard == "SE1" && Player.recycle[0] == -1) {
-              send("Play" + hand + ";" + Player.clickCard.card[0] + ";" + Player.clickCard.card[1] + ";" + Player.targetId() + ";" + i);
+              send("Play" + hand + ";" + Player.clickCard.card[0] + Player.clickCard.card[1] + ";" + Player.targetId() + ";" + i);
               Player.nextTarget();
             } else {
               Player.clickPlayer = Player.clickPlayer == players[i] ? null : players[i];
@@ -1955,9 +1957,6 @@ const pubnub = new PubNub({
   uuid: UUIDGeneratorBrowser
 });
 
-pubnub._config._presenceTimeout = 15;
-pubnub._config._heartbeatInterval = 10;
-
 pubnub.addListener({
   message: function(event) {
     message(event);
@@ -1973,10 +1972,10 @@ pubnub.addListener({
     }
   },
   presence: function(event) {
-    if (event.action == "timeout" && event.subscribedChannel.includes("-JL")) {
+    if (event.action == "leave" && event.subscribedChannel.includes("-JL")) {
       pubnub.publish({
         channel: "TP-JL" + gameId,
-        message: "Leve" + UUIDGeneratorBrowser
+        message: "Leve" + event.uuid
       }, function(status, response) {
         if (status.error) {
           console.log(status);

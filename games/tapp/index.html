@@ -80,14 +80,6 @@
   </article>
 </section>
 
-<!-- Change Log -->
-<section style="padding: 20px 40px; ">
-  <h1>Change Log<button type="button" id="collapsible2" style="border: none; background: none" aria-label="How to Play"><i id="arrow2" class="arrow"></i></button></h1>
-  <div id="content2" style="max-height: 0; display: block; overflow: hidden; width: 100%">
-    <iframe src="https://docs.google.com/spreadsheets/d/e/2PACX-1vTI3sG1t-DlyXE-y0AB-i5x1z9xzc1dDv3z386HarQiIlrNPGLWNsx7T07fuLjFzQ7X4xYEcHJU0Tps/pubhtml?gid=650921193&amp;single=true&amp;widget=false&amp;headers=false&chrome=false" style="width: 100%; height: 60vh" frameBorder="0"></iframe>
-  </div>
-</section>
-
 <!-- Footer -->
 <script src="/universal/footer.html"></script>
 
@@ -98,18 +90,6 @@
 document.getElementById("collapsible").addEventListener("click", () => {
   let content = document.getElementById("content");
   let arrow = document.getElementById("arrow")
-  if (content.className.includes("expand")) {
-    content.setAttribute("class", "contract");
-    arrow.setAttribute("class", "arrow rotate-right");
-  } else {
-    content.setAttribute("class", "expand");
-    arrow.setAttribute("class", "arrow rotate-down");
-  }
-});
-
-document.getElementById("collapsible2").addEventListener("click", () => {
-  let content = document.getElementById("content2");
-  let arrow = document.getElementById("arrow2")
   if (content.className.includes("expand")) {
     content.setAttribute("class", "contract");
     arrow.setAttribute("class", "arrow rotate-right");
