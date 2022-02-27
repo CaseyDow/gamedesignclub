@@ -726,6 +726,14 @@ class GameGUI {
   }
 
   static click(event) {
+    if (Player.clickBig) {
+      Player.clickBig = false;
+      Player.clickCard2 = null;
+      Player.clickCard = null;
+    }
+    if (Player.clickPlayer != null) {
+      Player.clickPlayer = null;
+    }
     for (let i = 0; i < players.length; i++) {
       if (players[i].hand.length > 0 && i != hand) {
         let pHand = players[i].hand;
@@ -764,8 +772,7 @@ class GameGUI {
               send("Play" + hand + ";" + Player.clickCard.card[0] + Player.clickCard.card[1] + ";" + Player.targetId() + ";" + i);
               Player.nextTarget();
             } else {
-              Player.clickPlayer = Player.clickPlayer == players[i] ? null : players[i];
-              window.requestAnimationFrame(GameGUI.draw);
+              Player.clickPlayer = players[i];
             }
           }
         }
@@ -785,8 +792,7 @@ class GameGUI {
             send("Play" + hand + ";" + Player.clickCard.card[0] + Player.clickCard.card[1] + ";" + Player.targetId() + ";" + i);
             Player.nextTarget();
           } else {
-            Player.clickPlayer = Player.clickPlayer == players[i] ? null : players[i];
-            window.requestAnimationFrame(GameGUI.draw);
+            Player.clickPlayer = players[i];
           }
         }
       }
@@ -808,7 +814,6 @@ class GameGUI {
       }
       return;
     }
-
     if (GameGUI.screen == 2) {
       let nullCount = 0;
       for (let i = 0; i < players.length; i++) {
@@ -827,21 +832,18 @@ class GameGUI {
       }
       return;
     }
-
     [Player.clickCard].concat([...players[hand].hand].reverse()).some(card => {
-      if (card != undefined) {
-        if (between(event.offsetX, card.x, width / 8)) {
-          if (between(event.offsetY, card.y, height / 4)) {
-            if (Player.clickCard != card) {
-              Player.clickCard = card;
-            } else {
-              Player.clickCard = null;
-              Player.clickBig = false;
-            }
-            window.requestAnimationFrame(GameGUI.draw);
-            return true;
+      if (card != null && between(event.offsetX, card.x, width / 8) && between(event.offsetY, card.y, height / 4)) {
+        if (Player.clickCard != card) {
+          Player.clickCard = card;
+          if (event.type == "contextmenu") {
+            Player.clickBig = true;
           }
+        } else {
+          Player.clickCard = null;
+          Player.clickBig = false;
         }
+        return true;
       }
     });
     if (between(event.offsetX, 59 * width / 64, 3 * width / 32)) {
@@ -849,7 +851,6 @@ class GameGUI {
         if (between(event.offsetY, height * (7 + i) / 15 + fontSize / 80, fontSize / 20)) {
           if (players[hand].tokens[i] > 0) {
             Player.clickToken = Player.clickToken == i ? null : i;
-            window.requestAnimationFrame(GameGUI.draw);
           }
         }
       }
@@ -941,7 +942,10 @@ class GameGUI {
     for (let i = 1; i < 4; i++) {
       if (between(event.offsetX, width * (i + 1) / 8, width / 9)) {
         if (between(event.offsetY, 343 * height / 576, 2 * height / 9)) {
-          if (players[hand].hand.length < 5) {
+          if (event.type == "contextmenu") {
+            Player.clickBig = true;
+            Player.clickCard2 = Deck.played[1][i - 1];
+          } else if (players[hand].hand.length < 5) {
             send("Grab" + hand + ";" + i);
           } else {
             log("#000000Your hand is full!");
@@ -949,6 +953,15 @@ class GameGUI {
         }
       }
     }
+    if (event.type == "contextmenu" && Deck.played[0].length > 0) {
+      if (between(event.offsetX, 4 * width / 9, width / 9)) {
+        if (between(event.offsetY, 13 * height / 36, height / 4.5)) {
+          Player.clickBig = true;
+          Player.clickCard2 = Deck.played[0][0];
+        }
+      }
+    }
+    window.requestAnimationFrame(GameGUI.draw);
   }
 
   static keydown(event) {
@@ -1001,6 +1014,9 @@ class GameGUI {
       if (Player.clickBig) {
         ctx.drawImage(Player.clickCard.image, 3 * width / 16, height / 32, 3 * width / 8, 3 * height / 4);
       }
+    }
+    if (Player.clickCard2 != null) {
+      ctx.drawImage(Player.clickCard2.image, 3 * width / 16, height / 32, 3 * width / 8, 3 * height / 4);
     }
     if (GameGUI.screen == 1) {
       rect(3 * width / 8, height / 2, width / 2, height / 2, "#f0f0f0");
@@ -1108,9 +1124,11 @@ class GameGUI {
 
   static toggleListeners(listen) {
     if (listen) {
+      canvas.addEventListener("contextmenu", GameGUI.click);
       canvas.addEventListener("click", GameGUI.click);
       window.addEventListener("keydown", GameGUI.keydown);
     } else {
+      canvas.removeEventListener("contextmenu", GameGUI.click);
       canvas.removeEventListener("click", GameGUI.click);
       window.removeEventListener("keydown", GameGUi.keydown);
     }
@@ -1263,6 +1281,7 @@ class Player {
 
   static target = 0;
   static clickCard = null;
+  static clickCard2 = null;
   static clickBig = false;
   static clickPlayer = null;
   static clickToken = null;
@@ -2093,6 +2112,10 @@ document.onreadystatechange = function() {
     }, 20);
   }
 };
+
+canvas.oncontextmenu = function(event) {
+  event.preventDefault();
+}
 
 window.addEventListener("keydown", function(e) {
   if(e.keyCode == 32 && e.target == document.body) {

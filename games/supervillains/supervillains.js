@@ -124,7 +124,7 @@ let message = function(event) {
     if (parseInt(data[0]) == hand) {
       str += "<details><summary>You cleared Stack " + (parseInt(data[1]) + 1) + "!</summary>";
     } else {
-      str += players[parse(data[0])].name + " cleared Stack " + (parseInt(data[1]) + 1) + "!";
+      str += players[parseInt(data[0])].name + " cleared Stack " + (parseInt(data[1]) + 1) + "!";
     }
     let stack = players[parseInt(data[0])].stacks[parseInt(data[1])]
     for (let i = stack.length - 1; i >= 0; i--) {
