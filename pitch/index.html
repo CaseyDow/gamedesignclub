@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Perfect Pitch</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#e4f7e8">
+  <link rel="stylesheet" href="./index.css">
+  <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon" />
+  <script src="https://unpkg.com/tone@next/build/Tone.js"></script>
+</head>
+
+<body>
+
+<div style="text-align: center; padding-bottom: 5vh;">
+  <h1>Perfect Pitch</h1>
+</div>
+
+<div style="text-align: center;">
+  <h2>
+    <button class="play" onclick="play()">Play [Space]</button>
+  </h2>
+</div>
+
+<div style="padding: 5vh 20vw;">
+  <p style="display: flex; flex-wrap: wrap;">
+    <button id="a" class="note" onclick="note('a')">A<br>[1]</button>
+    <button id="b" class="note" onclick="note('b')">B<br>[2]</button>
+    <button id="c" class="note" onclick="note('c')">C<br>[3]</button>
+    <button id="d" class="note" onclick="note('d')">D<br>[4]</button>
+    <button id="e" class="note" onclick="note('e')">E<br>[5]</button>
+    <button id="f" class="note" onclick="note('f')">F<br>[6]</button>
+    <button id="g" class="note" onclick="note('g')">G<br>[7]</button>
+  </p>
+</div>
+
+
+<div style="text-align: center;">
+  <h2 style="display: inline; padding-right: 1vw;">
+    <button class="reset" onclick="reset()">Reset</button>
+  </h2>
+  <h2 id="score" style="color: #000; display: inline;">
+    0/0
+  </h2>
+</div>
+
+</body>
+
+<script>
+
+let score = 0;
+let total = 0;
+
+let tried = [];
+
+let cur;
+let octave;
+
+function randomKey() {
+    const items = ["A", "B", "C", "D", "E", "F", "G"];
+    return items[Math.floor(Math.random()*items.length)];
+}
+
+  const sampler = new Tone.Sampler({
+  urls: {
+      "C4": "C4.mp3",
+      "D#4": "Ds4.mp3",
+      "F#4": "Fs4.mp3",
+      "A4": "A4.mp3",
+    },
+    release: 1,
+    baseUrl: "https://tonejs.github.io/audio/salamander/",
+  }).toDestination();
+
+function play() {
+  if (cur == null) {
+    cur = randomKey();
+    octave = Math.floor(Math.random() * 2) + 3;
+    const items = ["a", "b", "c", "d", "e", "f", "g"];
+    items.forEach(n => document.getElementById(n).style.backgroundColor = "#222");
+    tried = [];
+  }
+
+  sampler.triggerAttackRelease(cur + octave, 4);
+}
+
+function note(n) {
+  if (cur == null) return;
+  if (n == cur.toLowerCase()) {
+    score++;
+    total++;
+    cur = null;
+    document.getElementById(n).style.backgroundColor = "#080";
+  } else if (!tried.includes(n)) {
+    total++;
+    document.getElementById(n).style.backgroundColor = "#a00";
+    tried.push(n);
+  }
+  document.getElementById("score").innerHTML = score + "/" + total;
+}
+
+function reset() {
+  score = 0;
+  total = 0;
+  play();
+}
+
+function keydown(event) {
+  if (event.key == " ") {
+    play();
+  } else if (!isNaN(event.key)) {
+    switch (parseInt(event.key)) {
+      case 1:
+        note("a");
+        break;
+      case 2:
+        note("b");
+        break;
+      case 3:
+        note("c");
+        break;
+      case 4:
+        note("d");
+        break;
+      case 5:
+        note("e");
+        break;
+      case 6:
+        note("f");
+        break;
+      case 7:
+        note("g");
+        break;
+    }
+  }
+}
+
+window.addEventListener("keydown", keydown);
+
+</script>
+
+</html>
