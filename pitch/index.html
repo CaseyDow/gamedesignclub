@@ -10,38 +10,40 @@
   <script src="https://unpkg.com/tone@next/build/Tone.js"></script>
 </head>
 
-<body>
+<body style="display: flex; min-height: 100vh; align-items: center;">
 
-<div style="text-align: center; padding-bottom: 5vh;">
-  <h1>Perfect Pitch</h1>
-</div>
+<div>
+  <div style="text-align: center; padding-bottom: 2vh;">
+    <h1>Perfect Pitch</h1>
+  </div>
 
-<div style="text-align: center;">
-  <h2>
-    <button class="play" onclick="play()">Play [Space]</button>
-  </h2>
-</div>
+  <div style="text-align: center;">
+    <h2>
+      <button class="play" onclick="play()">Play [Space]</button>
+    </h2>
+  </div>
 
-<div style="padding: 5vh 20vw;">
-  <p style="display: flex; flex-wrap: wrap;">
-    <button id="a" class="note" onclick="note('a')">A<br>[1]</button>
-    <button id="b" class="note" onclick="note('b')">B<br>[2]</button>
-    <button id="c" class="note" onclick="note('c')">C<br>[3]</button>
-    <button id="d" class="note" onclick="note('d')">D<br>[4]</button>
-    <button id="e" class="note" onclick="note('e')">E<br>[5]</button>
-    <button id="f" class="note" onclick="note('f')">F<br>[6]</button>
-    <button id="g" class="note" onclick="note('g')">G<br>[7]</button>
-  </p>
-</div>
+  <div style="padding: 3vh 20vw;">
+    <p style="display: flex; flex-wrap: wrap;">
+      <button id="a" class="note" onclick="note('a')">A<br>[1]</button>
+      <button id="b" class="note" onclick="note('b')">B<br>[2]</button>
+      <button id="c" class="note" onclick="note('c')">C<br>[3]</button>
+      <button id="d" class="note" onclick="note('d')">D<br>[4]</button>
+      <button id="e" class="note" onclick="note('e')">E<br>[5]</button>
+      <button id="f" class="note" onclick="note('f')">F<br>[6]</button>
+      <button id="g" class="note" onclick="note('g')">G<br>[7]</button>
+    </p>
+  </div>
 
 
-<div style="text-align: center;">
-  <h2 style="display: inline; padding-right: 1vw;">
-    <button class="reset" onclick="reset()">Reset</button>
-  </h2>
-  <h2 id="score" style="color: #000; display: inline;">
-    0/0
-  </h2>
+  <div style="text-align: center;">
+    <h2 style="display: inline; padding-right: 1vw;">
+      <button class="reset" onclick="reset()">Reset</button>
+    </h2>
+    <h2 id="score" style="color: #000; display: inline;">
+      0/0
+    </h2>
+  </div>
 </div>
 
 </body>
