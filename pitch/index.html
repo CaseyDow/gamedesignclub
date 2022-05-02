@@ -102,7 +102,8 @@ function note(n) {
 function reset() {
   score = 0;
   total = 0;
-  play();
+  document.getElementById("score").innerHTML = "0/0";
+  cur = null;
 }
 
 function keydown(event) {
