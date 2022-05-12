@@ -1,3 +1,29 @@
+.theme-red {
+  --background: #f5b8b5;
+  --accent: #a66;
+  --dark-accent: #800;
+}
+.theme-green {
+  --background: #e4f7e8;
+  --accent: #797;
+  --dark-accent: #080;
+}
+.theme-blue {
+  --background: #bac6e6;
+  --accent: #789;
+  --dark-accent: #008;
+}
+.theme-purple {
+  --background: #d2bae6;
+  --accent: #979;
+  --dark-accent: #808;
+}
+.theme-white {
+  --background: #eee;
+  --accent: #777;
+  --dark-accent: #444;
+}
+
 html {
   box-sizing: border-box;
   font-family: Verdana;
@@ -8,7 +34,13 @@ html {
 }
 body {
   margin: 0;
-  background-color: #e4f7e8;
+  background-color: var(--background);
+}
+
+@font-face{
+  font-family:'FontAwesome';
+  src: url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/fonts/fontawesome-webfont.ttf?v=4.7.0') format('truetype'),
+       url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/fonts/fontawesome-webfont.svg?v=4.7.0#fontawesomeregular') format('svg');
 }
 
 h1, h2, p {
@@ -52,19 +84,91 @@ button {
 }
 
 button:hover {
-  background-color: #797;
-}
-
-.play {
-  padding: 2vh 5vw;
+  background-color: var(--accent);
 }
 
 .note {
   width: calc(40px + 4vw);
   padding: 2vh;
   margin: 1vh 0.5vw;
+  min-height: calc(28px + 1vw + 4vh);
 }
 
-.reset {
-  padding: 2vh 5vw;
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 5vw;
+  height: 5vh;
+  margin-right: 1vw;
+}
+
+.slider {
+  position: absolute;
+  inset: 0;
+  background-color: #ccc;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 4vh;
+  width: 2vw;
+  inset: 0.5vh 0 0 0.5vh;
+  background-color: white;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: var(--dark-accent);
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(calc(3vw - 1vh));
+  -ms-transform: translateX(calc(3vw - 1vh));
+  transform: translateX(calc(3vw - 1vh));
+}
+
+.dropdown {
+  position: relative;
+  display: none;
+}
+
+.dropdown-content {
+  display: none;
+  background-color: #fff;
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+  min-width: 30vw;
+  padding: 2vh;
+  font-size: calc(12px + 1vw);
+  font-family: Verdana;
+}
+
+.row {
+  padding: 1.5vh 0;
+  display: flex;
+  justify-content: space-between;
+}
+
+.dropdown:checked ~ .dropdown-content {
+  display: block;
+}
+
+#themes {
+  position: relative;
+  display: inline-block;
+}
+
+.themes-content {
+  display: none;
+  background-color: #eee;
+  color: #000;
+  min-width: 10vw;
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+  padding: 2vh;
+  text-align: left;
+}
+
+#themes:hover .themes-content {
+  display: block;
 }
