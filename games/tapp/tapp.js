@@ -113,7 +113,6 @@ let message = function(event) {
       }
     }
     log("Player " + (h + 1) + " joined the game. (" + Player.count(true) + "/" + players.length + ")");
-
   } else if (event.message.startsWith("User")) {
     let data = event.message.slice(4).split(";");
     let p = players[parseInt(data.shift())];
